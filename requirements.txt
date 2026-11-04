@@ -1,3 +1,8 @@
 neo4j>=5.26,<6
 pydantic>=2.7,<3
 python-dotenv>=1.0
+pymupdf
+python-docx
+openpyxl
+xlrd
+pandas
