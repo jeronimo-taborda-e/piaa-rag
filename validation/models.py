@@ -84,6 +84,7 @@ class ImagenIn(Strict):
     modelo_embedding: str = Field(min_length=1)
     version_embedding: int = Field(ge=1)
     fecha_ingesta: date
+    hash_embedding: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
 
 
 class ConsultaIn(Strict):

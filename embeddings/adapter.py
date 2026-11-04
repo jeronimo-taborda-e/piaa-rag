@@ -1,4 +1,3 @@
-# embeddings/adapter.py
 import json
 from pathlib import Path
 

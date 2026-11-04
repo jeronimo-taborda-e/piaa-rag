@@ -1,4 +1,3 @@
-# embeddings/contract.py
 """Lo que hace este archivo es leer y validar el archivo chunks.jsonl que entrega el chunking."""
 import sys
 from pathlib import Path
@@ -47,3 +46,40 @@ def read_chunks(path: Path) -> list[ChunkIn]:
     if errors:
         sys.exit(f"{path} no cumple el contrato:\n" + "\n".join(errors[:20]))
     return chunks
+
+
+class ImageIn(BaseModel):
+    """Contrato de una imagen en imagenes.jsonl."""
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    id: str = Field(min_length=1)
+    seccion_id: str = Field(min_length=1)
+    ruta_archivo: str = Field(min_length=1, pattern=r"(?i)\.(png|jpe?g)$")
+    descripcion: str = Field(min_length=1)
+    etiquetas: list[str] = Field(default_factory=list)
+    requirio_ocr: bool = False
+
+    def file_format(self) -> str:
+        return Path(self.ruta_archivo).suffix.lower().lstrip(".")
+
+
+def read_images(path: Path) -> list[ImageIn]:
+    images, errors = [], []
+    with path.open(encoding="utf-8") as f:
+        for line_no, line in enumerate(f, start=1):
+            if not line.strip():
+                continue
+            try:
+                images.append(ImageIn.model_validate_json(line))
+            except ValidationError as e:
+                fields = ", ".join(f"{'.'.join(map(str, err['loc']))}: {err['msg']}" for err in e.errors())
+                errors.append(f"  línea {line_no}: {fields}")
+
+    ids = [i.id for i in images]
+    duplicates = {i for i in ids if ids.count(i) > 1}
+    if duplicates:
+        errors.append(f"  ids repetidos: {sorted(duplicates)[:5]}")
+
+    if errors:
+        sys.exit(f"{path} no cumple el contrato:\n" + "\n".join(errors[:20]))
+    return images

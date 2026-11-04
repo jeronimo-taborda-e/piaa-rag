@@ -1,4 +1,3 @@
-# embeddings/search.py
 """Búsqueda semántica sobre los fragmentos, con filtro opcional por estrategia.
 
 Se puede realizar una pregunta al modelo desde la terminal para testear:

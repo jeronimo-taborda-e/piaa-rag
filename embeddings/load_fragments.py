@@ -1,4 +1,3 @@
-# embeddings/load_fragments.py
 """Embebe un chunks.jsonl (cualquier estrategia) y lo guarda como Fragmento en la base de datos.
 
 Uso (tenemos que estar en la raiz del repo):
