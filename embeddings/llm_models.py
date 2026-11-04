@@ -1,4 +1,3 @@
-# embeddings/models.py
 """Carga los modelos una sola vez y calcula vectores normalizados."""
 from functools import lru_cache
 
