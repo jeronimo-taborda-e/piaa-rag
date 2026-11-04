@@ -37,7 +37,7 @@ MERGE (piaa)-[:VIGENTE]->(v1)
 MERGE (sec:Seccion {id: "PIAA-ISIS-204-v1-contenidos"})
   SET sec.tipo = "contenidos", sec.titulo_original = "Contenidos", sec.orden = 3,
       sec.texto = "1. Modelo relacional y álgebra relacional. 2. Lenguaje SQL: DDL, DML y consultas. 3. Normalización hasta tercera forma normal. 4. Transacciones y control de concurrencia."
-MERGE (frag:Fragmento {id: "PIAA-ISIS-204-v1-contenidos-0"})
+MERGE (frag:Fragmento {id: "PIAA-ISIS-204-v1-contenidos-sentence-aware-0"})
   SET frag.chunk_index = 0,
       frag.estrategia_chunking = "sentence-aware",
       frag.texto = "Modelo relacional y álgebra relacional. Lenguaje SQL: DDL, DML y consultas.",
