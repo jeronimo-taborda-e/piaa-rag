@@ -9,29 +9,30 @@ DIM_CLIP = 512    # clip-ViT-B-32
 VectorMiniLM = Annotated[list[float], Field(min_length=DIM_MINILM, max_length=DIM_MINILM)]
 VectorClip = Annotated[list[float], Field(min_length=DIM_CLIP, max_length=DIM_CLIP)]
 
-EstrategiaChunking = Literal["fixed-size", "sentence-aware", "semantic"]
+EstrategiaChunking = Annotated[str, Field(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")]
+
 TipoSeccion = Literal[
     "objetivo_general", "objetivos_especificos", "contenidos",
     "metodologia", "evaluacion", "bibliografia", "desempenos", "otra",
 ]
 
 
-class Estricto(BaseModel):
+class Strict(BaseModel):
     """Rechaza campos no declarados (como validationLevel: strict)."""
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
 
-class PIAAIn(Estricto):
+class PIAAIn(Strict):
     codigo: str = Field(min_length=1)
     estado: Literal["VIGENTE", "BORRADOR", "HISTORICO"]
     origen: Literal["migracion", "flujo"]
     completitud: float = Field(ge=0, le=1)
-    actividad_codigo: str = Field(min_length=1)  # -> (PIAA)-[:PROGRAMA_DE]->(ActividadAcademica)
+    actividad_codigo: str = Field(min_length=1) 
 
 
-class VersionIn(Estricto):
+class VersionIn(Strict):
     id: str = Field(min_length=1)
-    piaa_codigo: str = Field(min_length=1)       # -> (PIAA)-[:TIENE_VERSION]->(Version)
+    piaa_codigo: str = Field(min_length=1)      
     numero: int = Field(ge=1)
     estado: Literal["VIGENTE", "BORRADOR", "HISTORICO"]
     es_publica: bool
@@ -43,18 +44,18 @@ class VersionIn(Estricto):
     hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
-class SeccionIn(Estricto):
+class SeccionIn(Strict):
     id: str = Field(min_length=1)
-    version_id: str = Field(min_length=1)        # -> (Version)-[:TIENE_SECCION]->(Seccion)
+    version_id: str = Field(min_length=1)       
     tipo: TipoSeccion
     titulo_original: str = Field(min_length=1)
     orden: int = Field(ge=0)
     texto: str = Field(min_length=1)
 
 
-class FragmentoIn(Estricto):
+class FragmentoIn(Strict):
     id: str = Field(min_length=1)
-    seccion_id: str = Field(min_length=1)        # equivale a doc_id: (Seccion)-[:TIENE_FRAGMENTO]->(Fragmento)
+    seccion_id: str = Field(min_length=1)      
     chunk_index: int = Field(ge=0)
     estrategia_chunking: EstrategiaChunking
     texto: str = Field(min_length=1)
@@ -66,11 +67,14 @@ class FragmentoIn(Estricto):
     modelo_embedding_clip: str | None = None
     idioma: str = Field(default="es", min_length=2, max_length=5)
     fecha_ingesta: date
+    parametros_chunking: str | None = None  
+    hash_embedding: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    obsoleto: bool = False                  
 
 
-class ImagenIn(Estricto):
+class ImagenIn(Strict):
     id: str = Field(min_length=1)
-    seccion_id: str = Field(min_length=1)        # -> (Seccion)-[:TIENE_IMAGEN]->(Imagen)
+    seccion_id: str = Field(min_length=1)      
     ruta_archivo: str = Field(min_length=1)
     formato: Literal["png", "jpg", "jpeg"]
     descripcion: str = Field(min_length=1)
@@ -82,9 +86,9 @@ class ImagenIn(Estricto):
     fecha_ingesta: date
 
 
-class ConsultaIn(Estricto):
+class ConsultaIn(Strict):
     id: str = Field(min_length=1)
-    chat_id: str = Field(min_length=1)           # -> (Chat)-[:GENERA]->(Consulta)
+    chat_id: str = Field(min_length=1)         
     pregunta: str = Field(min_length=1)
     fecha: date
-    fragmentos_usados: list[str] = Field(default_factory=list)  # -> [:RESPONDIDA_CON]
+    fragmentos_usados: list[str] = Field(default_factory=list) 
